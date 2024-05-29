@@ -6,11 +6,13 @@ const Config = require ('./config')
 
 // Création de notre application express.js
 const app = express()
+// Déclaration des middlewares à express
+app.use(bodyParser.json())
 
 // Déclaration des controllers pour l'utilisateur
 const UserController = require('./controllers/UserController')
 
-/*--------------------- Création des routes ---------------------*/
+/*--------------------- Création des routes (User - Utilisateur) ---------------------*/
 
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', UserController.addOneUser)
