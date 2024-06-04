@@ -1,8 +1,23 @@
-var userInformation = {
-    required: ["firstName", "lastName", "username", "email"],
-    authorized: ["firstName", "lastName", "username", "email", "phone"],
-    unique: ["username", "email"],
-    elements: []
-}
+const mongoose = require('mongoose')
 
-module.exports = userInformation
+var UserSchema = mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    phone: String
+})
+
+module.exports = UserSchema

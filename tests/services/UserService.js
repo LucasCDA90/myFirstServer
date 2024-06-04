@@ -2,7 +2,34 @@ const UserService = require('../../services/UserService')
 const chai = require('chai');
 let expect = chai.expect;
 
-describe("UserService", () => {
+describe("addOneUser", () => {
+    it("Utilisateur correct. - S", () => {
+        var user = {
+            firstName: "Edouard",
+            lastName: "Dupont",
+            email: "edouard.dupont@gmail.com",
+            username: "edupont"
+        }
+        UserService.addOneUser(user, function (err, value) {
+            expect(value).to.be.a('object');
+            expect(value).to.haveOwnProperty('_id')
+        }) 
+    })
+    it("Utilisateur incorrect. (Sans firstName) - E", () => {
+        var user = {
+            lastName: "Dupont",
+            email: "edouard.dupont@gmail.com",
+            username: "edupont"
+        }
+        UserService.addOneUser(user, function (err, value) {
+            console.log(err)
+        }) 
+    })
+})
+
+
+
+/* describe("UserService", () => {
     describe("addOneUser", () => {
         it("Utilisateur valide. - S", () => {
             var user_valid = {
@@ -234,7 +261,7 @@ describe("UserService", () => {
             })
         })
     })
-})
+}) */
 /* 
 
 

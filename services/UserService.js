@@ -1,8 +1,23 @@
 const UserSchema = require('../schemas/User')
 const _ = require('lodash')
 const async = require('async')
+const mongoose = require('mongoose')
 
-function checkSchemaUser(user, callback) {
+var User = mongoose.model('User', UserSchema)
+
+module.exports.addOneUser = function(user, callback) {
+    var new_user = new User(user)
+    var errors = new_user.validateSync().errors
+    if (errors)
+        callback(errors)
+    else {
+        new_user.save()
+        callback(null, new_user)
+    }
+}
+
+
+/* function checkSchemaUser(user, callback) {
     //var element_check = user
     var element_check = _.pick(user, UserSchema.authorized)
     var required_isnt_include = _.difference(UserSchema.required.sort(), _.keys(_.pick(element_check, UserSchema.required)).sort())
@@ -130,4 +145,4 @@ module.exports.updateOneUser = function (id, user_edition, callback) {
 // La fonction permet de modifier plusieurs utilisateurs.
 module.exports.updateManyUsers = function () {
 
-}
+} */
