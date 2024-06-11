@@ -9,6 +9,9 @@ const app = express()
 // Déclaration des middlewares à express
 app.use(bodyParser.json())
 
+// Démarrage de la database
+require('./utils/database')
+
 // Déclaration des controllers pour l'utilisateur
 const UserController = require('./controllers/UserController')
 
@@ -17,23 +20,23 @@ const UserController = require('./controllers/UserController')
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', UserController.addOneUser)
 // Création du endpoint /user pour l'ajout de plusieurs utilisateurs
-app.post('/user', UserController.addManyUser)
+app.post('/users', UserController.addManyUsers)
 // Création du endpoint /user pour la récupération d'un utilisateur
-app.post('/user', UserController.findOneUser)
+app.get('/user/:id', UserController.findOneUser)
 // Création du endpoint /user pour la récupération de plusieurs utilisateurs
-app.post('/user', UserController.findManyUser)
+app.get('/users', UserController.findManyUsers)
 // Création du endpoint /user pour la modification d'un utilisateur
-app.post('/user', UserController.updateOneUser)
+app.put('/user', UserController.updateOneUser)
 // Création du endpoint /user pour la modification de plusieurs utilisateurs
-app.post('/user', UserController.updateManyUser)
+app.put('/users', UserController.updateManyUsers)
 // Création du endpoint /user pour la suppression d'un utilisateur
-app.post('/user', UserController.deleteOneUser)
+app.delete('/user/:id', UserController.deleteOneUser)
 // Création du endpoint /user pour la suppression de plusieurs utilisateurs
-app.post('/user', UserController.deleteManyUser)
+app.delete('/users', UserController.deleteManyUsers)
 
 
-
-app.listen(Config.port, () => {                 // 2e chose à faire : Créer le server avec app.listen
+// 2e chose à faire : Créer le server avec app.listen
+app.listen(Config.port, () => {                 
     console.log(`${(new Date()).toLocaleString()}: Le serveur est démarré.`)
 })
 

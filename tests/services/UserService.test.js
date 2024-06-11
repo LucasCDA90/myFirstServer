@@ -38,7 +38,6 @@ describe("addOneUser", () => {
 })
 
 describe("addManyUsers", () => {
-
     it("Utilisateurs à ajouter, non valide. - E", (done) => {
         var users_tab_error = [{
             firstName: "Edouard",

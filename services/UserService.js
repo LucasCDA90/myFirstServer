@@ -89,7 +89,7 @@ module.exports.findOneUser = function (user_id, callback) {
 }
 
 module.exports.findManyUsers = function (users_id, callback) {
-    if (users_id && users_id.length > 0) {
+    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e)}).length == users_id.length) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
         User.find({ _id: users_id }).then((value) => {
             try {
@@ -105,7 +105,15 @@ module.exports.findManyUsers = function (users_id, callback) {
         }).catch((err) => {
             callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
         });
-    } else {
+    }
+    else if (users_id && Array.isArray(users_id) && users_id.length >  0 && users_id.filter((e) => { return mongoose.isValidObjectId(e)}).length != users_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e)}) });
+    }
+    else if (users_id && !Array.isArray(users_id)) {
+        callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
+
+    }
+    else {
         callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
     }
 }
@@ -143,9 +151,9 @@ module.exports.updateOneUser = function (user_id, update, callback) {
 
 
 module.exports.updateManyUsers = function (users_id, update, callback) {
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 ) {
+    if (users_id && Array.isArray(users_id) && users_id.length > 0) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.updateMany({_id: users_id}, update, { runValidators: true }).then((value) => {
+        User.updateMany({ _id: users_id }, update, { runValidators: true }).then((value) => {
             try {
                 callback(null, value)
             } catch (e) {
@@ -174,7 +182,6 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
     }
 }
 
-
 module.exports.deleteOneUser = function (user_id, callback) {
     if (user_id && mongoose.isValidObjectId(user_id)) {
         User.findByIdAndDelete(user_id).then((value) => {
@@ -182,34 +189,39 @@ module.exports.deleteOneUser = function (user_id, callback) {
                 if (value)
                     callback(null, value.toObject())
                 else
-                callback({msg: "Utilisateur non trouvé.", type_error: "no-found"});
+                callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
             }
             catch (e) {
                 console.log(e)
                 callback(e)
             }
         }).catch((e) => {
-            callback({msg: "Impossible de chercher l'élément.", type_error: "error-mongo"})
+            callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
         })
     }
     else {
-        callback({msg: "Id invalide.", type_error: "no-valid"})
+        callback({ msg: "Id invalide.", type_error: 'no-valid' })
     }
 }
 
-
-module.exports.deleteManyUsers = function (users_id, callback) {
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 ) {
-        users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.deleteMany({_id: users_id},).then((value) => {// value= utilisateurs
+module.exports.deleteManyUsers = function(users_id, callback) {
+    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e)}).length == users_id.length) {
+        users_id = users_id.map((e) => { return new ObjectId(e)})
+        User.deleteMany({_id: users_id}).then((value) => {
             callback(null, value)
-            
         }).catch((err) => {
-            callback({msg: "Erreur mongo suppression", type_error: "error-mongo"})
+            callback({ msg: "Erreur mongo suppression.", type_error: "error-mongo" }); 
         })
     }
+    else if (users_id && Array.isArray(users_id) && users_id.length >  0 && users_id.filter((e) => { return mongoose.isValidObjectId(e)}).length != users_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e)}) });
+    }
+    else if (users_id && !Array.isArray(users_id)) {
+        callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
+
+    }
     else {
-        callback({ msg: "Tableau d'id invalide.", type_error: 'no-valid' })
+        callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
     }
 }
 
