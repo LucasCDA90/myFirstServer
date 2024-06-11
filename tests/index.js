@@ -2,5 +2,5 @@
 require('../utils/database');
 
 describe("UserService", () => {
-    require('./services/UserService')
+    require('./services/UserService.test')
 })
