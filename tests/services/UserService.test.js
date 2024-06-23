@@ -10,8 +10,8 @@ describe("addOneUser", () => {
         var user = {
             firstName: "Edouard",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont"
+            email: "edouard.dupont1@gmail.com",
+            username: "edupont1"
         }
         UserService.addOneUser(user, function (err, value) {
             expect(value).to.be.a('object');
@@ -23,8 +23,8 @@ describe("addOneUser", () => {
     it("Utilisateur incorrect. (Sans firstName) - E", () => {
         var user_no_valid = {
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont"
+            email: "edouard.dupont2@gmail.com",
+            username: "edupont2"
         }
         UserService.addOneUser(user_no_valid, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
@@ -42,12 +42,12 @@ describe("addManyUsers", () => {
         var users_tab_error = [{
             firstName: "Edouard",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont"
+            email: "edouard.dupont3@gmail.com",
+            username: "edupont3"
         }, {
             firstName: "Edouard",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
+            email: "edouard.dupont4@gmail.com",
             username: "",
             testing: true,
             phone: "0645102340"
@@ -55,13 +55,13 @@ describe("addManyUsers", () => {
         {
             firstName: "Edouard",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont",
+            email: "edouard.dupon5t@gmail.com",
+            username: "edupont4",
             testing: true,
             phone: "0645102340"
         }, {
             firstName: "Edouard",
-            email: "edouard.dupont@gmail.com"
+            email: "edouard.dupont6@gmail.com"
         }]
 
         UserService.addManyUsers(users_tab_error, function (err, value) {
@@ -72,12 +72,12 @@ describe("addManyUsers", () => {
         var users_tab = [{
             firstName: "Louison",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont"
+            email: "edouard.dupont7@gmail.com",
+            username: "edupont5"
         }, {
             firstName: "Jordan",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
+            email: "edouard.dupont8@gmail.com",
             username: "La",
             testing: true,
             phone: "0645102340"
@@ -85,8 +85,8 @@ describe("addManyUsers", () => {
         {
             firstName: "Mathis",
             lastName: "Dupont",
-            email: "edouard.dupont@gmail.com",
-            username: "edupont",
+            email: "edouard.dupont9@gmail.com",
+            username: "edupont6",
             testing: true,
             phone: "0645102340"
         }]

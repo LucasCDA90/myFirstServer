@@ -11,11 +11,15 @@ var UserSchema = mongoose.Schema({
     },
     username: {
         type: String,
-        required: true
+        required: true,
+        index: true,
+        unique: true
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        index: true,
+        unique: true
     },
     phone: String
 })
