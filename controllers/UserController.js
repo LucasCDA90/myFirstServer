@@ -67,11 +67,11 @@ module.exports.findOneUser = function(req, res) {
 // La fonction permet de chercher plusieurs utilisateurs
 module.exports.findManyUsers = function(req, res) {
     LoggerHttp(req, res)
-    req.log.info("Recherche de plusieurs utilisateurs")
+    req.log.info("Recherche de plusieurs utilisateurs", req.query.id)
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg=[arg]
-    UserService.findManyUsers(req.query.id, function(err, value) {
+    UserService.findManyUsers(arg, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -148,12 +148,11 @@ module.exports.updateOneUser = function(req, res) {
     req.log.info("Modification d'un utilisateur")
     UserService.updateOneUser(req.params.id, req.body, function(err, value) {
         console.log(err)
-        console.log(value)
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
         }
-        else if (err && err.type_error == "no-valid") {
+        else if (err && (err.type_error == "no-valid" || err.type_error == "validator" || err.type_error == "duplicate" ) ) {
             res.statusCode = 405
             res.send(err)
         }
@@ -180,7 +179,7 @@ module.exports.updateManyUsers = function(req, res) {
             res.statusCode = 404
             res.send(err)
         }
-        else if (err && err.type_error == "no-valid") {
+        else if (err && (err.type_error == "no-valid" || err.type_error == "validator" || err.type_error == 'duplicate')) {
             res.statusCode = 405
             res.send(err)
         }

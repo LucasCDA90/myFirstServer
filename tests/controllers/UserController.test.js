@@ -57,6 +57,30 @@ describe("POST - /user", () => {
     })
 })
 
+describe("POST - /users", () => {
+    it("Ajouter plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).post('/users').send([{
+            firstName: "luf",
+            lastName: "Us",
+            username: "dwathttvrfSlayer",
+            email: "lutfgfbu.us@gmail.com"
+        },
+
+        {
+            firstName: "luf",
+            lastName: "Us",
+            username: "dwgfbarfSlayer",
+            email: "lutgbffu.us@gmail.com"
+        }]
+        ).end((err, res) => {
+            res.should.have.status(201)
+
+            users = [...users, ...res.body]
+            done()
+        });
+    })
+})
+
 describe("GET - /user", () => {
     it("Chercher un utilisateur correct. - S", (done) => {
         chai.request(server).get('/user/' + users[0]._id)
@@ -88,17 +112,20 @@ describe("GET - /users", () => {
     it("Chercher plusieurs utilisateurs. - S", (done) => {
         chai.request(server).get('/users').query({id: _.map(users, '_id')})
         .end((err, res) => {
-            res.should.have.status(201)
+            res.should.have.status(200)
+            expect(res.body).to.be.an('array')
             done()
         })
     })
+
     it("Chercher plusieurs utilisateurs incorrects (avec un id inexistant). - E", (done) => {
-        chai.request(server).get('/users/667572d6071b7aee7e31ed7c')
+        chai.request(server).get('/users').query({id: ["66791a552b38d88d8c6e9ee7", "66791a822b38d88d8c6e9eed"]})
         .end((err, res) => {
             res.should.have.status(404)
             done()
         })
     })
+
     it("Chercher plusieurs utilisateurs incorrects (avec un id invalide). - E", (done) => {
         chai.request(server).get('/users').query({id: ['123', '456']})
         .end((err, res) => {
@@ -108,11 +135,94 @@ describe("GET - /users", () => {
     })
 })
 
+describe("PUT - /user", () => {
+    it("Modifier un utilisateur. - S", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).send({ firstName: "Olivier" })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
 
+    it("Modifier un utilisateur avec un id invalide. - E", (done) => {
+        chai.request(server).put('/user/123456789').send({firstName: "Olivier", lastName: "Edouard"})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
 
+    it("Modifier un utilisateur avec un id inexistant. - E", (done) => {
+        chai.request(server).put('/user/66791a552b38d88d8c6e9ee7').send({firstName: "Olivier", lastName: "Edouard"})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
 
-//---------------------------------------------------
-/* describe("DELETE - /user", () => {
+    it("Modifier un utilisateur avec un champ requis vide. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).send({ firstName: "", lastName: "Edouard" })
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur avec un champ unique existant. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).send({ username: users[1].username})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+})
+
+describe("PUT - /users", () => {
+    it("Modifier plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ firstName: "lucas" })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs avec des ids invalide. - E", (done) => {
+        chai.request(server).put('/users').query({id: ['267428142', '41452828']}).send({firstName: "Olivier"})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs avec des ids inexistant. - E", (done) => {
+        chai.request(server).put('/users').query({id: ['66791a552b38d88d8c6e9ee7', '667980886db560087464d3a7']})
+        .send({firstName: "Olivier"})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Modifier des utilisateurs avec un champ requis vide. - E", (done) => {
+        chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ firstName: ""})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier des utilisateurs avec un champ unique existant. - E", (done) => {
+        chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ username: users[1].username})
+        .end((err, res) => {
+            console.log(err)
+            res.should.have.status(405)
+            done()
+        })
+    })
+})
+
+describe("DELETE - /user", () => {
     it("Supprimer un utilisateur. - S", (done) => {
         chai.request(server).delete('/user/' + users[0]._id)
         .end((err, res) => {
@@ -120,14 +230,14 @@ describe("GET - /users", () => {
             done()
         })
     })
-    it("supprimer un utilisateur incorrect (avec un id inexistant). - E", (done) => {
+    it("Supprimer un utilisateur incorrect (avec un id inexistant). - E", (done) => {
         chai.request(server).delete('/user/665f18739d3e172be5daf092')
         .end((err, res) => {
             res.should.have.status(404)
             done()
         })
     })
-    it("supprimer un utilisateur incorrect (avec un id invalide). - E", (done) => {
+    it("Supprimer un utilisateur incorrect (avec un id invalide). - E", (done) => {
         chai.request(server).delete('/user/123')
         .end((err, res) => {
             res.should.have.status(405)
@@ -158,7 +268,16 @@ describe("DELETE - /users", () => {
             done()
         })
     })
-}) */
+})
+
+
+
+
+
+
+
+
+
 //-----------------------------------------------------------------------------------
 /* describe("DELETE - /users", () => {
     it ("Supprimer plusieurs utilisateurs existants. - S", (done) => {
