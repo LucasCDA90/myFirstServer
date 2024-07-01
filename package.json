@@ -11,6 +11,7 @@
     "pino-http": "^10.1.0"
   },
   "scripts": {
-    "test": "mocha tests/index.js --timeout 5000 -s 0 --exit"
+    "test": "mocha tests/index.js --timeout 5000 -s 0 --exit",
+    "dev": "npx server.js"
   }
 }

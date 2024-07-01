@@ -43,8 +43,34 @@ module.exports.addManyUsers = function(req, res) {
 
 // La fonction permet de chercher un utilisateur
 module.exports.findOneUser = function(req, res) {
-    req.log.info("Recherche d'un utilisateur")
-    UserService.findOneUser(req.params.id, function(err, value) {        
+    req.log.info("Recherche d'un utilisateur avec un champ choisi")
+    let arg = req.query.fields
+    if (arg && !Array.isArray(arg))
+        arg = [arg]
+    UserService.findOneUser(arg, req.query.value, function(err, value) {        
+        if (err && err.type_error == "no-found") {
+            res.statusCode = 404
+            res.send(err)
+        }
+        else if (err && err.type_error == "no-valid") {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else if (err && err.type_error == "error-mongo") {
+            res.statusCode = 500
+            res.send(err)
+        }
+        else {
+            res.statusCode = 200
+            res.send(value)
+        }
+    })
+}
+
+// La fonction permet de chercher un utilisateur avec id
+module.exports.findOneUserById = function(req, res) {
+    req.log.info("Recherche d'un utilisateur avec id")
+    UserService.findOneUserById(req.params.id, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -65,13 +91,13 @@ module.exports.findOneUser = function(req, res) {
 }
 
 // La fonction permet de chercher plusieurs utilisateurs
-module.exports.findManyUsers = function(req, res) {
+module.exports.findManyUsersById = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Recherche de plusieurs utilisateurs", req.query.id)
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg=[arg]
-    UserService.findManyUsers(arg, function(err, value) {
+    UserService.findManyUsersById(arg, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)

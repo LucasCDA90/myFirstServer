@@ -101,7 +101,7 @@ module.exports.addManyUsers = async function (users, callback) {
     }
 };
 
-module.exports.findOneUser = function (user_id, callback) {
+module.exports.findOneUserById = function (user_id, callback) {
     if (user_id && mongoose.isValidObjectId(user_id)) {
         User.findById(user_id).then((value) => {
             try {
@@ -122,7 +122,7 @@ module.exports.findOneUser = function (user_id, callback) {
     }
 }
 
-module.exports.findManyUsers = function (users_id, callback) {
+module.exports.findManyUsersById = function (users_id, callback) {
     
     if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
         users_id = users_id.map((e) => { return new ObjectId(e) })
@@ -150,6 +150,43 @@ module.exports.findManyUsers = function (users_id, callback) {
     }
     else {
         callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
+    }
+}
+
+module.exports.findOneUser = function (tab_field, value, callback) {
+    var field_unique = ['username', 'email']
+    if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
+        var obj_find = []
+        _.forEach(tab_field, (e) => {
+            obj_find.push({[e]: value})
+        })
+        User.findOne({ $or: obj_find}).then((value) => {
+            if (value)
+                callback(null, value.toObject())
+            else {
+                callback({msg: "Utilisateur non trouvé.", type_error: "no-found"})
+            }
+        }).catch((err) => {
+        callback({msg: "Error interne mongo", type_error:'error-mongo'})
+        })
+    }
+    else {
+        let msg = ''
+        if(!tab_field || !Array.isArray(tab_field)) {
+            msg += "Les champs de recherche sont incorrecte."
+        }
+        if(!value){
+            msg += msg ? " Et la valeur de recherche est vide" : "La valeur de rechrche est vide"
+        }
+        if(_.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length > 0) {
+            var field_not_authorized = _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1})
+            msg += msg ? `Et (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.` : 
+            `Les champs (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.`
+            callback({ msg: msg, type_error: 'no-valid', field_not_authorized: field_not_authorized })
+        }
+        else{
+            callback({ msg: msg, type_error: 'no-valid'})
+        }
     }
 }
 
@@ -258,79 +295,6 @@ module.exports.deleteOneUser = function (user_id, callback) {
                 if (value)
                     callback(null, value.toObject())
                 else
-                    callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
-            }
-            catch (e) {
-                console.log(e)
-                callback(e)
-            }
-        }).catch((e) => {
-            callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
-        })
-    }
-    else {
-        callback({ msg: "Id invalide.", type_error: 'no-valid' })
-    }
-}
-
-module.exports.deleteManyUsers = function (users_id, callback) {
-    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
-        users_id = users_id.map((e) => { return new ObjectId(e) })
-        User.deleteMany({ _id: users_id }).then((value) => {
-            callback(null, value)
-        }).catch((err) => {
-            callback({ msg: "Erreur mongo suppression.", type_error: "error-mongo" });
-        })
-    }
-    else if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != users_id.length) {
-        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
-    }
-    else if (users_id && !Array.isArray(users_id)) {
-        callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
-
-    }
-    else {
-        callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
-    }
-}
-
-
-
-
-
-
-/* module.exports.updateManyUsers = async function (users_id, update, callback) {
-        try {
-            if (!update || typeof update !== "object" || Array.isArray(update)) {
-                return callback({ msg: "La mise à jour est invalide.", type_error: 'no-valid' });
-            }
-    
-            if (!Array.isArray(users_id) || users_id.length === 0) {
-                return callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
-            }
-    
-            const invalidIds = users_id.filter(id => !mongoose.isValidObjectId(id));
-            if (invalidIds.length > 0) {
-                return callback({ msg: "Tableau non conforme, plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: invalidIds });
-            }
-    
-            const objectIds = users_id.map(id => new ObjectId(id));
-            const result = await User.updateMany({ _id: { $in: objectIds } }, update, { runValidators: true });
-    
-            callback(null, result);
-        } catch (error) {
-            callback({ msg: "Erreur lors de la mise à jour des utilisateurs.", type_error: "error-mongo" });
-        }
-    }; */
-
-    
-module.exports.deleteOneUser = function (user_id, callback) {
-    if (user_id && mongoose.isValidObjectId(user_id)) {
-        User.findByIdAndDelete(user_id).then((value) => {
-            try {
-                if (value)
-                    callback(null, value.toObject())
-                else
                 callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
             }
             catch (e) {
@@ -371,148 +335,32 @@ module.exports.deleteManyUsers = function(users_id, callback) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-function checkSchemaUser(user, callback) {
-    //var element_check = user
-    var element_check = _.pick(user, UserSchema.authorized)
-    var required_isnt_include = _.difference(UserSchema.required.sort(), _.keys(_.pick(element_check, UserSchema.required)).sort())
-    var required_is_empty = _.filter(UserSchema.required, (e) => { return _.isEmpty(element_check[e]) })
-    required_is_empty = _.difference(required_is_empty, required_isnt_include)
-    var text_error = ""
-    if (required_isnt_include.length > 0)
-        text_error += `Une des propriétés requis (${required_isnt_include.join(', ')}) n'est pas inclus. `
-    if (required_is_empty.length > 0)
-        text_error += `Une des propriétés requis (${required_is_empty.join(', ')}) est inclus mais vide.`
-    var error = {
-        msg: text_error,
-        key_required_not_include: required_isnt_include,
-        key_required_empty: required_is_empty
-    }
-    if (required_isnt_include.length > 0 || required_is_empty.length > 0) {
-        callback(error)
-    }
-    else {
-        callback(null, element_check)
-    }
-}
-
-// La fonction permet d'ajouter un utilisateur.
-module.exports.addOneUser = function (user, callback) {
-    checkSchemaUser(user, function (err, value) {
-        if (err)
-            callback(err)
-        else {
-            value.id = _.uniqueId()
-            UserSchema.elements.push(value)
-            callback(null, value)
-        }
-    })
-}
-
-// La fonction permet d'ajouter plusieurs utilisateurs.
-module.exports.addManyUsers = function (users, callback) {
-    var i = 0;
-    async.map(users, function (user, next) {
-        checkSchemaUser(user, function (err, value) {
-            if (err) {
-                err.index = i
-                next(null, err)
+/* module.exports.updateManyUsers = async function (users_id, update, callback) {
+        try {
+            if (!update || typeof update !== "object" || Array.isArray(update)) {
+                return callback({ msg: "La mise à jour est invalide.", type_error: 'no-valid' });
             }
-            else {
-                next(null, null)
+    
+            if (!Array.isArray(users_id) || users_id.length === 0) {
+                return callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
             }
-            i++;
-        })
-    }, function (err, val) {
-        var error = _.filter(val, (e) => { return !_.isEmpty(e) })
-        if (error.length > 0) {
-            callback(error)
+    
+            const invalidIds = users_id.filter(id => !mongoose.isValidObjectId(id));
+            if (invalidIds.length > 0) {
+                return callback({ msg: "Tableau non conforme, plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: invalidIds });
+            }
+    
+            const objectIds = users_id.map(id => new ObjectId(id));
+            const result = await User.updateMany({ _id: { $in: objectIds } }, update, { runValidators: true });
+    
+            callback(null, result);
+        } catch (error) {
+            callback({ msg: "Erreur lors de la mise à jour des utilisateurs.", type_error: "error-mongo" });
         }
-        else {
-            async.map(users, checkSchemaUser, function (err, val) {
-                var tab = _.map(val, (e) => { e.id = _.uniqueId(); return e })
-                UserSchema.elements = [...UserSchema.elements, ...tab]
-                callback(null, val)
-            })
-        }
-    });
-}
+    }; */
 
-// La fonction permet de chercher un utilisateur.
-module.exports.findOneUser = function (id, callback) {
-    var user = _.find(UserSchema.elements, ["id", id])
-    if (user) {
-        callback(null, user)
-    }
-    else {
-        callback({ error: true, msg: 'Utilisateur not found.', error_type: 'Not-Found' })
-    }
-}
+    
 
-// La fonction permet de chercher plusieurs utilisateurs.
-module.exports.findManyUsers = function (ids, callback) {
-    var users = _.filter(UserSchema.elements, (e) => {
-        return ids.indexOf(e.id) > -1
-    })
-    callback(null, users)
-}
 
-// La fonction permet de supprimer un utilisateur.
-module.exports.deleteOneUser = function (id, callback) {
-    var user_index = _.findIndex(UserSchema.elements, ["id", String(id)])
-    if (user_index > -1) {
-        var user_delete = UserSchema.elements.splice(user_index, 1)[0]
-        callback(null, {msg: "Element supprimé.", user_delete: user_delete})
-    }
-    else {
-        callback({error: 1, msg: "L'utilisateur à effacé n'a pas été trouvé. (Id invalide)"})
-    }
-}
 
-// La fonction permet de supprimer plusieurs utilisateurs.
-module.exports.deleteManyUsers = function (ids, callback) {
-    var count_remove = 0
-    for (var i = 0; i < ids.length;i++) {
-        var user_index = _.findIndex(UserSchema.elements, ["id", String(ids[i])])
-        if (user_index > -1)  {
-            count_remove++
-            UserSchema.elements.splice(user_index, 1)
-        }
 
-    }
-    callback(null, {msg: `${count_remove} élément(s) supprimé(s).`, count_remove: count_remove})
-}
-
-// La fonction permet de modifier un utilisateur.
-module.exports.updateOneUser = function (id, user_edition, callback) {
-    var user_index = _.findIndex(UserSchema.elements, ["id", id])
-    var user_tmp = { ...UserSchema.elements[user_index], ...user_edition }
-    checkSchemaUser(user_tmp, function (err, value) {
-        if (err)
-            callback(err)
-        else {
-            UserSchema.elements[user_index] = { ...UserSchema.elements[user_index], ...value }
-            callback(null, UserSchema.elements[user_index])
-        }
-    })
-}
-
-// La fonction permet de modifier plusieurs utilisateurs.
-module.exports.updateManyUsers = function () {
-
-} */

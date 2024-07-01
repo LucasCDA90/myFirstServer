@@ -82,6 +82,42 @@ describe("POST - /users", () => {
 })
 
 describe("GET - /user", () => {
+    it("Chercher un utilisateur par un champ selectionné. - S", (done) => {
+        chai.request(server).get('/user').query({fields: ["username"], value: users[0].username})
+        .end((err, res) => {
+            console.log(res.body, err)
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur par un champ non autorisé. - E", (done) => {
+        chai.request(server).get('/user').query({fields: ["firstName"], value: users[0].username})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur sans aucune query. - E", (done) => {
+        chai.request(server).get('/user')
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur inexistant. - E", (done) => {
+        chai.request(server).get('/user').query({fields: ["username"], value: "Mathislebg"})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+})
+
+//GET /user
+describe("GET - /user:id", () => {
     it("Chercher un utilisateur correct. - S", (done) => {
         chai.request(server).get('/user/' + users[0]._id)
         .end((err, res) => {

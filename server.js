@@ -30,11 +30,14 @@ app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
 // Création du endpoint /user pour l'ajout de plusieurs utilisateurs
 app.post('/users', DatabaseMiddleware.checkConnexion, UserController.addManyUsers)
 
-// Création du endpoint /user pour la récupération d'un utilisateur
-app.get('/user/:id', DatabaseMiddleware.checkConnexion, UserController.findOneUser)
+// Création du endpoint /user pour la récupération d'un utilisateur 
+app.get('/user', DatabaseMiddleware.checkConnexion, UserController.findOneUser)
 
-// Création du endpoint /user pour la récupération de plusieurs utilisateurs
-app.get('/users', DatabaseMiddleware.checkConnexion, UserController.findManyUsers)
+// Création du endpoint /user pour la récupération d'un utilisateur par id
+app.get('/user/:id', DatabaseMiddleware.checkConnexion, UserController.findOneUserById)
+
+// Création du endpoint /user pour la récupération de plusieurs utilisateurs par id
+app.get('/users', DatabaseMiddleware.checkConnexion, UserController.findManyUsersById)
 
 // Création du endpoint /user pour la modification d'un utilisateur
 app.put('/user/:id', DatabaseMiddleware.checkConnexion, UserController.updateOneUser)
