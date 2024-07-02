@@ -190,6 +190,31 @@ module.exports.findOneUser = function (tab_field, value, callback) {
     }
 }
 
+module.exports.findManyUsers = function(page, limit, callback) {
+    console.log("page")
+    page = !page ? 1 : parseInt(page)
+    limit = !limit ? 10 : parseInt(limit)
+    if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
+        callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
+    }else{
+        User.countDocuments().then((value) => {
+            if (value > 0) {
+                const skip = ((page - 1) * limit)
+                User.find({}, null, {skip:skip, limit:limit}).then((results) => {
+                    callback(null, {
+                        count: value,
+                        results: results
+                    })
+                })
+            }else{
+                callback(null, {count: 0, results: []})
+            }
+        }).catch((e) => {
+            callback(e)
+        })
+    }
+}
+
 module.exports.updateOneUser = function (user_id, update, callback) {
     if (user_id && mongoose.isValidObjectId(user_id)) {
         User.findByIdAndUpdate(new ObjectId(user_id), update, { returnDocument: 'after', runValidators: true }).then((value) => {

@@ -11,4 +11,4 @@ mongoose.connection.on('close', () => Logger.info('Connexion √† la base de donn√
 
 
 
-mongoose.connect("mongodb://localhost:27017/CDA_SERVER_TRAINING")
+mongoose.connect(`mongodb://localhost:27017/${process.env.npm_lifecycle_event == 'test' ? "CDA_SERVER_TRAINING" : "CDA_SERVER_PRODUCTION"}`)

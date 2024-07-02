@@ -91,6 +91,31 @@ module.exports.findOneUserById = function(req, res) {
 }
 
 // La fonction permet de chercher plusieurs utilisateurs
+module.exports.findManyUsers = function(req, res) {
+    req.log.info("Recherche d'un utilisateur avec un champ choisi")
+    let page = req.query.page
+    let pageSize = req.query.pageSize
+    UserService.findManyUsers(page, pageSize, function(err, value) {        
+        if (err && err.type_error == "no-found") {
+            res.statusCode = 404
+            res.send(err)
+        }
+        else if (err && err.type_error == "no-valid") {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else if (err && err.type_error == "error-mongo") {
+            res.statusCode = 500
+            res.send(err)
+        }
+        else {
+            res.statusCode = 200
+            res.send(value)
+        }
+    })
+}
+
+// La fonction permet de chercher plusieurs utilisateurs
 module.exports.findManyUsersById = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Recherche de plusieurs utilisateurs", req.query.id)

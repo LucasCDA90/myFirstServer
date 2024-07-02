@@ -171,6 +171,33 @@ describe("GET - /users", () => {
     })
 })
 
+describe("GET - /users_by_filter", () => {
+    it("Chercher plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).get('/users_by_filter').query({page: 1, pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs avec une query vide. - S", (done) => {
+        chai.request(server).get('/users_by_filter')
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            expect(res.body.count).to.be.equal(3)
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs avec une chaine de caractere dans page. - E", (done) => {
+        chai.request(server).get('/users_by_filter').query({page: "une phrase", pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+})
+
 describe("PUT - /user", () => {
     it("Modifier un utilisateur. - S", (done) => {
         chai.request(server).put('/user/' + users[0]._id).send({ firstName: "Olivier" })

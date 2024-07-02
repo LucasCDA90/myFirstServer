@@ -33,6 +33,9 @@ app.post('/users', DatabaseMiddleware.checkConnexion, UserController.addManyUser
 // Création du endpoint /user pour la récupération d'un utilisateur 
 app.get('/user', DatabaseMiddleware.checkConnexion, UserController.findOneUser)
 
+// Création du endpoint /user pour la récupération de plusieurs utilisateurs
+app.get('/users_by_filter', DatabaseMiddleware.checkConnexion, UserController.findManyUsers)
+
 // Création du endpoint /user pour la récupération d'un utilisateur par id
 app.get('/user/:id', DatabaseMiddleware.checkConnexion, UserController.findOneUserById)
 

@@ -152,6 +152,29 @@ describe("findOneUserById", () => {
     })
 })
 
+describe("findManyUsers", () => {
+    it("Retourne 3 utilisateurs sur les 4. - S", (done) => {
+        UserService.findManyUsers(1, 3, function(err, value){
+            console.log(value)
+            console.log(err, value)
+            expect(value).to.haveOwnProperty("count")
+            expect(value).to.haveOwnProperty("results")
+            expect(value["count"]).to.be.equal(4)
+            expect(value["results"]).lengthOf(3)
+            expect(err).to.be.null
+            done()
+        })
+    })
+    it("Envoie chaine de caractere sur page. - E", (done) => {
+        UserService.updateManyUsers("coucou", 3, function(err, value){
+            expect(err).to.haveOwnProperty("type_error")
+            expect(err["type_error"]).to.be.equal("no-valid")
+            expect(value).to.undefined
+            done()
+        })
+    })
+})
+
 describe("findManyUsersById", () => {
     it("Chercher des utilisateurs existant correct. - S", (done) => {
         UserService.findManyUsersById(tab_id_users, function (err, value) {
