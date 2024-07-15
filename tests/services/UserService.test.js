@@ -19,7 +19,6 @@ describe("addOneUser", () => {
             expect(value).to.haveOwnProperty('_id')
             id_user_valid = value._id
             users.push(value)
-            //console.log(value)
         })
     })
     it("Utilisateur incorrect. (Sans firstName) - E", () => {
@@ -40,6 +39,37 @@ describe("addOneUser", () => {
 })
 
 describe("addManyUsers", () => {
+    it("Utilisateurs à ajouter, valide. - S", (done) => {
+        var users_tab = [{
+            firstName: "Louison",
+            lastName: "Dupont",
+            email: "edouard.dupont7@gmail.com",
+            username: "edupont5"
+        }, {
+            firstName: "Jordan",
+            lastName: "Dupont",
+            email: "edouard.dupont8@gmail.com",
+            username: "La",
+            testing: true,
+            phone: "0645102340"
+        },
+        {
+            firstName: "Mathis",
+            lastName: "Dupont",
+            email: "edouard.dupont9@gmail.com",
+            username: "edupont6",
+            testing: true,
+            phone: "0645102340"
+        }]
+
+        UserService.addManyUsers(users_tab, function (err, value) {
+            tab_id_users = _.map(value, '_id')
+            users = [...value, ...users]
+            expect(value).lengthOf(3)
+            done()
+        })
+
+    })
     it("Utilisateurs à ajouter, non valide. - E", (done) => {
         var users_tab_error = [{
             firstName: "Edouard",
@@ -70,42 +100,16 @@ describe("addManyUsers", () => {
             done()
         })
     })
-    it("Utilisateurs à ajouter, valide. - S", (done) => {
-        var users_tab = [{
-            firstName: "Louison",
-            lastName: "Dupont",
-            email: "edouard.dupont7@gmail.com",
-            username: "edupont5"
-        }, {
-            firstName: "Jordan",
-            lastName: "Dupont",
-            email: "edouard.dupont8@gmail.com",
-            username: "La",
-            testing: true,
-            phone: "0645102340"
-        },
-        {
-            firstName: "Mathis",
-            lastName: "Dupont",
-            email: "edouard.dupont9@gmail.com",
-            username: "edupont6",
-            testing: true,
-            phone: "0645102340"
-        }]
-
-        UserService.addManyUsers(users_tab, function (err, value) {
-            tab_id_users = _.map(value, '_id')
-            users = [...value, ...users]
-            expect(value).lengthOf(3)
-            done()
-        })
-    })
+    
 })
 
 describe("findOneUser", () => {
     it("Chercher un utilisateur par les champs selectionnés - S.", (done) => {
         UserService.findOneUser(["email", "username"], users[0].username, function(err, value) {
             expect(value).to.haveOwnProperty('firstName')
+            expect(value).to.haveOwnProperty('lastName')
+            expect(value).to.haveOwnProperty('username')
+            expect(value).to.haveOwnProperty('email')
             done()
         })
     })
@@ -154,9 +158,7 @@ describe("findOneUserById", () => {
 
 describe("findManyUsers", () => {
     it("Retourne 3 utilisateurs sur les 4. - S", (done) => {
-        UserService.findManyUsers(1, 3, function(err, value){
-            console.log(value)
-            console.log(err, value)
+        UserService.findManyUsers(null, 1, 3, function(err, value){
             expect(value).to.haveOwnProperty("count")
             expect(value).to.haveOwnProperty("results")
             expect(value["count"]).to.be.equal(4)
@@ -469,7 +471,6 @@ describe("deleteManyUsers", () => {
 
             UserService.findOneUserById("1", function (err, value) {
                 expect(value).to.be.a('object');
-                //console.log(err)
                 expect(value).to.haveOwnProperty('id')
                 expect(value).to.haveOwnProperty('lastName')
                 expect(value['id']).to.equal('1')

@@ -85,7 +85,6 @@ describe("GET - /user", () => {
     it("Chercher un utilisateur par un champ selectionné. - S", (done) => {
         chai.request(server).get('/user').query({fields: ["username"], value: users[0].username})
         .end((err, res) => {
-            console.log(res.body, err)
             res.should.have.status(200)
             done()
         })
@@ -278,7 +277,6 @@ describe("PUT - /users", () => {
     it("Modifier des utilisateurs avec un champ unique existant. - E", (done) => {
         chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ username: users[1].username})
         .end((err, res) => {
-            console.log(err)
             res.should.have.status(405)
             done()
         })
