@@ -5,31 +5,47 @@ let expect = chai.expect;
 const _ = require('lodash')
 var id_article_valid = ""
 var tab_id_articles = []
-var tab_id_users = []
 var articles = []
 
-/* let users = [
+var tab_id_users = []
+let users = [
     {
-        firstName: "luf",
-        lastName: "Us",
-        username: "dwarfSlayer",
-        email: "lutfu.us@gmail.com"
+        firstName: "Détenteur d'article 1",
+        lastName: "Iencli",
+        username: "oui1",
+        email:"iencli1@gmail.com"
     },
-
     {
-        firstName: "lulu",
-        lastName: "brg",
-        username: "maidenless",
-        email: "maidenless@gmail.com"
-    }
-] */
+        firstName: "Détenteur d'article 2",
+        lastName: "Iencli",
+        username: "oui2",
+        email:"iencli2@gmail.com"
+    },
+    {
+        firstName: "Détenteur d'article 3",
+        lastName: "Iencli",
+        username: "oui3",
+        email:"iencli3@gmail.com"
+    },
+    {
+        firstName: "Détenteur d'article 4",
+        lastName: "Iencli",
+        username: "oui4",
+        email:"iencli4@gmail.com"
+    },
+];
 
-/* it("Création de users", (done => {
-    UserService.addManyUsers(users, function (err, value) {
+it("Création des utilisateurs fictif", (done) => {
+    UserService.addManyUsers(users, null, function (err, value) {
         tab_id_users = _.map(value, '_id')
         done()
     })
-})) */
+})
+
+function rdm_user (tab) {
+    let rdm_id = tab[Math.floor(Math.random() * (tab.length - 1))]
+    return rdm_id
+}
 
 describe("addOneArticle", () => {
     it("Article correct. - S", () => {
@@ -39,11 +55,13 @@ describe("addOneArticle", () => {
             price: 19.99,
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }
-        ArticleService.addOneArticle(article, function (err, value) {
+        ArticleService.addOneArticle(article, null, function (err, value) {
             expect(value).to.be.a('object');
             expect(value).to.haveOwnProperty('_id')
+            expect(value).to.haveOwnProperty('user_id')
             id_article_valid = value._id
             articles.push(value)
         })
@@ -54,9 +72,10 @@ describe("addOneArticle", () => {
             price: 19.99,
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }
-        ArticleService.addOneArticle(article_no_valid, function (err, value) {
+        ArticleService.addOneArticle(article_no_valid, null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
             expect(err).to.haveOwnProperty('fields')
@@ -75,14 +94,16 @@ describe("addManyArticles", () => {
             price: 19.99,
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }, {
-            name: "Fraise",
+            name: "couteau",
             description: "Framboises",
             price: 2.99,
             quantity: 4,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         },
         {
             name: "Fraise",
@@ -90,10 +111,11 @@ describe("addManyArticles", () => {
             price: 9.99,
             quantity: 50,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }]
 
-        ArticleService.addManyArticles(articles_tab, function (err, value) {
+        ArticleService.addManyArticles(articles_tab, null, function (err, value) {
             tab_id_articles = _.map(value, '_id')
             articles = [...value, ...articles]
             expect(value).lengthOf(3)
@@ -106,17 +128,19 @@ describe("addManyArticles", () => {
             price: 19.99,
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }, {
             name: "Fraise",
             description: "Fraises",
             price: "19.99",
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }]
 
-        ArticleService.addManyArticles(articles_tab_error, function (err, value) {
+        ArticleService.addManyArticles(articles_tab_error, null, function (err, value) {
             done()
         })
     })
@@ -124,7 +148,7 @@ describe("addManyArticles", () => {
 
 describe("findOneArticle", () => {
     it("Chercher un article par les champs selectionnés - S.", (done) => {
-        ArticleService.findOneArticle(["name", "description"], articles[0].name, function(err, value) {
+        ArticleService.findOneArticle(["name", "description"], articles[0].name, null, function(err, value) {
             expect(value).to.haveOwnProperty('description')
             expect(value).to.haveOwnProperty('price')
             expect(value).to.haveOwnProperty('quantity')
@@ -135,21 +159,21 @@ describe("findOneArticle", () => {
     })
 
     it("Chercher un article avec un champ non autorisés - E.", (done) => {
-        ArticleService.findOneArticle(["description", "price"], articles[0].name, function(err, value) {
+        ArticleService.findOneArticle(["name", "description"], articles[0].name, null, function(err, value) {
             expect(err).to.haveOwnProperty('type_error')
             done()
         })
     })
 
     it("Chercher un article sans tableau de champ - E.", (done) => {
-        ArticleService.findOneArticle("description", articles[0].name, function(err, value) {
+        ArticleService.findOneArticle("name", articles[0].name, null, function(err, value) {
             expect(err).to.haveOwnProperty('type_error')
             done()
         })
     })
 
     it("Chercher un article inexistant - E.", (done) => {
-        ArticleService.findOneArticle(["description"], "articles[0].description", function(err, value) {
+        ArticleService.findOneArticle(["description"], "articles[0].description", null, function(err, value) {
             expect(err).to.haveOwnProperty('type_error')
             done()
         })
@@ -158,7 +182,7 @@ describe("findOneArticle", () => {
 
 describe("findOneArticleById", () => {
     it("Chercher un article existant correct. - S", (done) => {
-        ArticleService.findOneArticleById(id_article_valid, function (err, value) {
+        ArticleService.findOneArticleById(id_article_valid, null, function (err, value) {
             expect(value).to.be.a('object');
             expect(value).to.haveOwnProperty('_id')
             expect(value).to.haveOwnProperty('description')
@@ -167,7 +191,7 @@ describe("findOneArticleById", () => {
         })
     })
     it("Chercher un article non-existant correct. - E", (done) => {
-        ArticleService.findOneArticleById("100", function (err, value) {
+        ArticleService.findOneArticleById("100", null, function (err, value) {
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
             expect(err["type_error"]).to.equal('no-valid')
@@ -178,7 +202,7 @@ describe("findOneArticleById", () => {
 
 describe("findManyArticles", () => {
     it("Retourne 3 articles sur les 4. - S", (done) => {
-        ArticleService.findManyArticles(null, 1, 3, function(err, value){
+        ArticleService.findManyArticles(null, 1, 3, null, function(err, value){
             expect(value).to.haveOwnProperty("count")
             expect(value).to.haveOwnProperty("results")
             expect(value["count"]).to.be.equal(4)
@@ -187,8 +211,18 @@ describe("findManyArticles", () => {
             done()
         })
     })
+    it("Faire une recherche avec 0 resultats correspondant. - S", (done) => {
+        ArticleService.findManyArticles("cout", 1, 3, null, function (err, value) {
+            expect(value).to.haveOwnProperty("count")
+            expect(value).to.haveOwnProperty("results")
+            expect(value["count"]).to.be.equal(0)
+            expect(value["results"]).lengthOf(0)
+            expect(err).to.be.null
+            done()
+        })
+    })
     it("Envoie chaine de caractere sur page. - E", (done) => {
-        ArticleService.findManyArticles(null,"coucou", 3, function(err, value){
+        ArticleService.findManyArticles(null,"coucou", 3, null, function(err, value){
             expect(err).to.haveOwnProperty("type_error")
             expect(err["type_error"]).to.be.equal("no-valid")
             expect(value).to.undefined
@@ -199,10 +233,9 @@ describe("findManyArticles", () => {
 
 describe("findManyArticlesById", () => {
     it("Chercher des articles existant correct. - S", (done) => {
-        ArticleService.findManyArticlesById(tab_id_articles, function (err, value) {
+        ArticleService.findManyArticlesById(tab_id_articles, null, function (err, value) {
             expect(value).lengthOf(3)
             done()
-
         })
     })
 })
@@ -210,7 +243,7 @@ describe("findManyArticlesById", () => {
 
 describe("updateOneArticle", () => {
     it("Modifier un article correct. - S", (done) => {
-        ArticleService.updateOneArticle(id_article_valid, { description: "Fraises", price: 19.99 }, function (err, value) {
+        ArticleService.updateOneArticle(id_article_valid, { description: "Fraises", price: 19.99 }, null, function (err, value) {
             expect(value).to.be.a('object')
             expect(value).to.haveOwnProperty('_id')
             expect(value).to.haveOwnProperty('description')
@@ -222,7 +255,7 @@ describe("updateOneArticle", () => {
         })
     })
     it("Modifier un article avec id incorrect. - E", (done) => {
-        ArticleService.updateOneArticle("1200", { description: "Fraises", price: 19.99 }, function (err, value) {
+        ArticleService.updateOneArticle("1200", { description: "Fraises", price: 19.99 }, null, function (err, value) {
             expect(err).to.be.a('object')
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
@@ -231,7 +264,7 @@ describe("updateOneArticle", () => {
         })
     })
     it("Modifier un article avec des champs requis vide. - E", (done) => {
-        ArticleService.updateOneArticle(id_article_valid, { description: "", price: 19.99 }, function (err, value) {
+        ArticleService.updateOneArticle(id_article_valid, { description: "", price: 19.99 }, null, function (err, value) {
             expect(value).to.be.undefined
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
@@ -245,7 +278,7 @@ describe("updateOneArticle", () => {
 
 describe("updateManyArticles", () => {
     it("Modifier plusieurs articles correctement. - S", (done) => {
-        ArticleService.updateManyArticles(tab_id_articles, { description: "Mangue", price: 1.99 }, function (err, value) {
+        ArticleService.updateManyArticles(tab_id_articles, { description: "Mangue", price: 1.99 }, null, function (err, value) {
             expect(value).to.haveOwnProperty('modifiedCount')
             expect(value).to.haveOwnProperty('matchedCount')
             expect(value['matchedCount']).to.be.equal(tab_id_articles.length)
@@ -255,7 +288,7 @@ describe("updateManyArticles", () => {
         })
     })
     it("Modifier plusieurs articles avec id incorrect. - E", (done) => {
-        ArticleService.updateManyArticles("1200", { description: "Fraises", price: 19.99 }, function (err, value) {
+        ArticleService.updateManyArticles("1200", { description: "Fraises", price: 19.99 }, null, function (err, value) {
             expect(err).to.be.a('object')
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
@@ -264,7 +297,7 @@ describe("updateManyArticles", () => {
         })
     })
     it("Modifier plusieurs articles avec des champs requis vide. - E", (done) => {
-        ArticleService.updateManyArticles(tab_id_articles, { description: "", price: 19.99 }, function (err, value) {
+        ArticleService.updateManyArticles(tab_id_articles, { description: "", price: 19.99 }, null, function (err, value) {
             expect(value).to.be.undefined
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
@@ -278,7 +311,7 @@ describe("updateManyArticles", () => {
 
 describe("deleteOneArticle", () => {
     it("Supprimer un article correct. - S", (done) => {
-        ArticleService.deleteOneArticle(id_article_valid, function (err, value) { //callback
+        ArticleService.deleteOneArticle(id_article_valid, null, function (err, value) { //callback
             expect(value).to.be.a('object')
             expect(value).to.haveOwnProperty('_id')
             expect(value).to.haveOwnProperty('description')
@@ -287,7 +320,7 @@ describe("deleteOneArticle", () => {
         })
     })
     it("Supprimer un article avec id incorrect. - E", (done) => {
-        ArticleService.deleteOneArticle("1200", function (err, value) {
+        ArticleService.deleteOneArticle("1200", null, function (err, value) {
             expect(err).to.be.a('object')
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
@@ -296,7 +329,7 @@ describe("deleteOneArticle", () => {
         })
     })
     it("Supprimer un article avec un id inexistant. - E", (done) => {
-        ArticleService.deleteOneArticle("665f00c6f64f76ba59361e9f", function (err, value) {
+        ArticleService.deleteOneArticle("665f00c6f64f76ba59361e9f", null, function (err, value) {
             expect(err).to.be.a('object')
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
@@ -308,7 +341,7 @@ describe("deleteOneArticle", () => {
 
 describe("deleteManyArticles", () => {
     it("Supprimer plusieurs articles correctement. - S", (done) => {
-        ArticleService.deleteManyArticles(tab_id_articles, function (err, value) {
+        ArticleService.deleteManyArticles(tab_id_articles, null, function (err, value) {
             expect(value).to.be.a('object')
             expect(value).to.haveOwnProperty('deletedCount')
             expect(value['deletedCount']).is.equal(tab_id_articles.length)
@@ -317,7 +350,7 @@ describe("deleteManyArticles", () => {
         })
     })
     it("Supprimer plusieurs articles avec id incorrect. - E", (done) => {
-        ArticleService.deleteManyArticles("1200", function (err, value) {
+        ArticleService.deleteManyArticles("1200", null, function (err, value) {
             expect(err).to.be.a('object')
             expect(err).to.haveOwnProperty('msg')
             expect(err).to.haveOwnProperty('type_error')
@@ -326,4 +359,10 @@ describe("deleteManyArticles", () => {
         })
     })
 
+})
+
+it("Suppression des utilisateurs fictifs", (done) => {
+    UserService.deleteManyUsers(tab_id_users, null, function(err, value){
+        done()
+    })
 })

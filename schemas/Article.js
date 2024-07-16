@@ -2,6 +2,11 @@ const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
 
 var ArticleSchema = mongoose.Schema({
+    user_id: {
+        type: ObjectId,
+        ref: "User",
+        required: true
+    },
     name: {
         type: String,
         required: true
@@ -25,11 +30,7 @@ var ArticleSchema = mongoose.Schema({
         type: Date,
         required: true
     }
-    /* user_id:
-    {
-        type: ObjectId,
-        required: true
-    } */
+    
 })
 
 module.exports = ArticleSchema

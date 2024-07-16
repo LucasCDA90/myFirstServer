@@ -5,7 +5,7 @@ const LoggerHttp = require ('../utils/logger').http
 module.exports.addOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création d'un article")
-    ArticleService.addOneArticle(req.body, function(err, value) {
+    ArticleService.addOneArticle(req.body, null, function(err, value) {
         if (err && err.type_error == "no found") {
             res.statusCode = 404
             res.send(err)
@@ -28,7 +28,7 @@ module.exports.addOneArticle = function(req, res) {
 // La fonction permet d'ajouter plusieurs articles
 module.exports.addManyArticles = function(req, res) {
     req.log.info("Création de plusieurs articles")
-    ArticleService.addManyArticles(req.body, function(err, value) {
+    ArticleService.addManyArticles(req.body, null, function(err, value) {
         if (err) {
             res.statusCode = 405
             res.send(err)
@@ -42,12 +42,13 @@ module.exports.addManyArticles = function(req, res) {
 }
 
 // La fonction permet de chercher un article
-module.exports.findOneArticle = function(req, res) {
+module.exports.findOneArticle = function (req, res) {
     req.log.info("Recherche d'un article avec un champ choisi")
     let arg = req.query.fields
     if (arg && !Array.isArray(arg))
         arg = [arg]
-    ArticleService.findOneArticle(arg, req.query.value, function(err, value) {        
+    var opts = { populate: req.query.populate }
+    ArticleService.findOneArticle(arg, req.query.value, opts, function (err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -70,7 +71,8 @@ module.exports.findOneArticle = function(req, res) {
 // La fonction permet de chercher un article avec id
 module.exports.findOneArticleById = function(req, res) {
     req.log.info("Recherche d'un article avec id")
-    ArticleService.findOneArticleById(req.params.id, function(err, value) {        
+    var opts = {populate: req.query.populate}
+    ArticleService.findOneArticleById(req.params.id, opts, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -96,7 +98,9 @@ module.exports.findManyArticles = function(req, res) {
     let page = req.query.page
     let pageSize = req.query.pageSize
     let search = req.query.q
-    ArticleService.findManyArticles(search, page, pageSize, function(err, value) {        
+    var opts = {populate: req.query.populate}
+
+    ArticleService.findManyArticles(search, page, pageSize, opts, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -123,7 +127,8 @@ module.exports.findManyArticlesById = function(req, res) {
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg=[arg]
-    ArticleService.findManyArticlesById(arg, function(err, value) {
+    var opts = {populate: req.query.populate}
+    ArticleService.findManyArticlesById(arg, opts, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -147,7 +152,7 @@ module.exports.findManyArticlesById = function(req, res) {
 module.exports.deleteOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Suppression d'un article")
-    ArticleService.deleteOneArticle(req.params.id, function(err, value) {        
+    ArticleService.deleteOneArticle(req.params.id, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -174,7 +179,7 @@ module.exports.deleteManyArticles = function(req, res) {
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg = [arg]
-    ArticleService.deleteManyArticles(arg, function(err, value) {
+    ArticleService.deleteManyArticles(arg, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -198,7 +203,7 @@ module.exports.deleteManyArticles = function(req, res) {
 module.exports.updateOneArticle = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un article")
-    ArticleService.updateOneArticle(req.params.id, req.body, function(err, value) {
+    ArticleService.updateOneArticle(req.params.id, req.body, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -225,7 +230,7 @@ module.exports.updateManyArticles = function(req, res) {
     if (arg && !Array.isArray(arg))
         arg = [arg]
     var updateData = req.body
-    ArticleService.updateManyArticles(arg, updateData, function(err, value) {
+    ArticleService.updateManyArticles(arg, updateData, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)

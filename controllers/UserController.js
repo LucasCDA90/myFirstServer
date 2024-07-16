@@ -5,7 +5,7 @@ const LoggerHttp = require ('../utils/logger').http
 module.exports.addOneUser = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Création d'un utilisateur")
-    UserService.addOneUser(req.body, function(err, value) {
+    UserService.addOneUser(req.body, null, function(err, value) {
         if (err && err.type_error == "no found") {
             res.statusCode = 404
             res.send(err)
@@ -28,7 +28,7 @@ module.exports.addOneUser = function(req, res) {
 // La fonction permet d'ajouter plusieurs utilisateurs
 module.exports.addManyUsers = function(req, res) {
     req.log.info("Création de plusieurs utilisateurs")
-    UserService.addManyUsers(req.body, function(err, value) {
+    UserService.addManyUsers(req.body, null, function(err, value) {
         if (err) {
             res.statusCode = 405
             res.send(err)
@@ -47,7 +47,7 @@ module.exports.findOneUser = function(req, res) {
     let arg = req.query.fields
     if (arg && !Array.isArray(arg))
         arg = [arg]
-    UserService.findOneUser(arg, req.query.value, function(err, value) {        
+    UserService.findOneUser(arg, req.query.value, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -70,7 +70,7 @@ module.exports.findOneUser = function(req, res) {
 // La fonction permet de chercher un utilisateur avec id
 module.exports.findOneUserById = function(req, res) {
     req.log.info("Recherche d'un utilisateur avec id")
-    UserService.findOneUserById(req.params.id, function(err, value) {        
+    UserService.findOneUserById(req.params.id, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -96,7 +96,7 @@ module.exports.findManyUsers = function(req, res) {
     let page = req.query.page
     let pageSize = req.query.pageSize
     let search = req.query.q
-    UserService.findManyUsers(search, page, pageSize, function(err, value) {        
+    UserService.findManyUsers(search, page, pageSize, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -123,7 +123,7 @@ module.exports.findManyUsersById = function(req, res) {
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg=[arg]
-    UserService.findManyUsersById(arg, function(err, value) {
+    UserService.findManyUsersById(arg, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -147,7 +147,7 @@ module.exports.findManyUsersById = function(req, res) {
 module.exports.deleteOneUser = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Suppression d'un utilisateur")
-    UserService.deleteOneUser(req.params.id, function(err, value) {        
+    UserService.deleteOneUser(req.params.id, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -174,7 +174,7 @@ module.exports.deleteManyUsers = function(req, res) {
     var arg = req.query.id
     if (arg && !Array.isArray(arg))
         arg = [arg]
-    UserService.deleteManyUsers(arg, function(err, value) {
+    UserService.deleteManyUsers(arg, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -198,7 +198,7 @@ module.exports.deleteManyUsers = function(req, res) {
 module.exports.updateOneUser = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un utilisateur")
-    UserService.updateOneUser(req.params.id, req.body, function(err, value) {
+    UserService.updateOneUser(req.params.id, req.body, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -225,7 +225,7 @@ module.exports.updateManyUsers = function(req, res) {
     if (arg && !Array.isArray(arg))
         arg = [arg]
     var updateData = req.body
-    UserService.updateManyUsers(arg, updateData, function(err, value) {
+    UserService.updateManyUsers(arg, updateData, null, function(err, value) {
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)

@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const UserService = require('../../services/UserService')
 const expect = chai.expect;
 const server = require('./../../server')
 let should = chai.should();
@@ -7,18 +8,59 @@ const _ = require('lodash')
 
 var articles = []
 
+var tab_id_users = []
+let users = [
+    {
+        firstName: "Détenteur d'article 1",
+        lastName: "Iencli",
+        username: "oui1",
+        email:"iencli1@gmail.com"
+    },
+    {
+        firstName: "Détenteur d'article 2",
+        lastName: "Iencli",
+        username: "oui2",
+        email:"iencli2@gmail.com"
+    },
+    {
+        firstName: "Détenteur d'article 3",
+        lastName: "Iencli",
+        username: "oui3",
+        email:"iencli3@gmail.com"
+    },
+    {
+        firstName: "Détenteur d'article 4",
+        lastName: "Iencli",
+        username: "oui4",
+        email:"iencli4@gmail.com"
+    },
+];
+
+it("Création des utilisateurs fictif", (done) => {
+    UserService.addManyUsers(users, null, function (err, value) {
+        tab_id_users = _.map(value, '_id')
+        done()
+    })
+})
+
+function rdm_user (tab) {
+    let rdm_id = tab[Math.floor(Math.random() * (tab.length - 1))]
+    return rdm_id
+}
+
 chai.use(chaiHttp)
 
 
 describe("POST - /article", () => {
     it("Ajouter un article. - S", (done) => {
         chai.request(server).post('/article').send({
-            name: "Fraise",
+            name: "Fraissse",
             description: "Fraises",
             price: 19.99,
             quantity: 5,
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }).end((err, res) => {
             expect(res).to.have.status(201)
             articles.push(res.body)
@@ -27,20 +69,12 @@ describe("POST - /article", () => {
     })
     it("Ajouter un article incorrect. (Sans name) - E", (done) => {
         chai.request(server).post('/article').send({
-            description: 'Us',
-            name: 'dwarfSlayr',
-            email: 'lutfu.us@gmil.com'
-        }).end((err, res) => {
-            expect(res).to.have.status(405)
-            done()
-        })
-    })
-    it("Ajouter un article incorrect. (Avec un name existant) - E", (done) => {
-        chai.request(server).post('/article').send({
-            name: "luf",
-            description: "Us",
-            name: "dwarfSlayer",
-            email: "lutfu.us@gmai.com"
+            description: "Fraisessssss",
+            price: 19.99,
+            quantity: 5,
+            created_at: new Date(),
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }).end((err, res) => {
             expect(res).to.have.status(405)
             done()
@@ -48,10 +82,13 @@ describe("POST - /article", () => {
     })
     it("Ajouter un article incorrect. (Avec un champ vide) - E", (done) => {
         chai.request(server).post('/article').send({
-            name: "luffu",
+            name: "Fraisesss",
             description: "",
-            name: "dwarfSlaye",
-            email: "lufu.us@gmai.com"
+            price: 19.99,
+            quantity: 5,
+            created_at: new Date(),
+            updated_at: new Date(),
+            user_id: rdm_user(tab_id_users)
         }).end((err, res) => {
             expect(res).to.have.status(405)
             done()
@@ -67,7 +104,8 @@ describe("POST - /articles", () => {
             price: 19.99,
             quantity: 4,
             created_at: Date.now(),
-            updated_at: Date.now()
+            updated_at: Date.now(),
+            user_id: rdm_user(tab_id_users)
         },
 
         {
@@ -76,7 +114,8 @@ describe("POST - /articles", () => {
             price: 9.99,
             quantity: 40,
             created_at: Date.now(),
-            updated_at: Date.now()
+            updated_at: Date.now(),
+            user_id: rdm_user(tab_id_users)
         }]
         ).end((err, res) => {
             res.should.have.status(201)
@@ -335,5 +374,12 @@ describe("DELETE - /articles", () => {
             res.should.have.status(405)
             done()
         })
+    })
+})
+
+
+it("Suppression des utilisateurs fictifs", (done) => {
+    UserService.deleteManyUsers(tab_id_users, null, function(err, value){
+        done()
     })
 })
