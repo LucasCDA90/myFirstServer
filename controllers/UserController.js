@@ -1,5 +1,27 @@
 const UserService = require('../services/UserService')
 const LoggerHttp = require ('../utils/logger').http
+const passport = require('passport')
+
+// la fonction pour gerer l'authentification depuispassport
+module.exports.loginUser = function(req, res, next) {
+    passport.authenticate('login', { badRequestMessage: "Les champs sont manquants."}, function(err, user) {
+       // console.log(err, user)
+        if(err){
+            return res.send({msg: "Le nom d'utilisateur ou le mot de passe n'est pas correct", type_error: "no-valid-login"})
+        }
+       // console.log(err, user)
+        req.logIn(user, function (err) {
+            if(err) {
+                console.log(err)
+
+                res.statusCode = 500
+                return res.send({msg: "Probleme d'authentification sur le serveur.", type_error: "internal"})
+            }else{
+                return res.send(user)
+            }
+        }) 
+    })(req, res, next)
+}
 
 // La fonction permet d'ajouter un utilisateur
 module.exports.addOneUser = function(req, res) {
@@ -32,9 +54,7 @@ module.exports.addManyUsers = function(req, res) {
         if (err) {
             res.statusCode = 405
             res.send(err)
-        }
-        
-        else {
+        }else {
             res.statusCode = 201
             res.send(value)
         }
@@ -42,34 +62,8 @@ module.exports.addManyUsers = function(req, res) {
 }
 
 // La fonction permet de chercher un utilisateur
-module.exports.findOneUser = function(req, res) {
-    req.log.info("Recherche d'un utilisateur avec un champ choisi")
-    let arg = req.query.fields
-    if (arg && !Array.isArray(arg))
-        arg = [arg]
-    UserService.findOneUser(arg, req.query.value, null, function(err, value) {        
-        if (err && err.type_error == "no-found") {
-            res.statusCode = 404
-            res.send(err)
-        }
-        else if (err && err.type_error == "no-valid") {
-            res.statusCode = 405
-            res.send(err)
-        }
-        else if (err && err.type_error == "error-mongo") {
-            res.statusCode = 500
-            res.send(err)
-        }
-        else {
-            res.statusCode = 200
-            res.send(value)
-        }
-    })
-}
-
-// La fonction permet de chercher un utilisateur avec id
 module.exports.findOneUserById = function(req, res) {
-    req.log.info("Recherche d'un utilisateur avec id")
+    req.log.info("Recherche d'un utilisateur par son id")
     UserService.findOneUserById(req.params.id, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
@@ -90,13 +84,14 @@ module.exports.findOneUserById = function(req, res) {
     })
 }
 
-// La fonction permet de chercher plusieurs utilisateurs
-module.exports.findManyUsers = function(req, res) {
-    req.log.info("Recherche d'un utilisateur avec un champ choisi")
-    let page = req.query.page
-    let pageSize = req.query.pageSize
-    let search = req.query.q
-    UserService.findManyUsers(search, page, pageSize, null, function(err, value) {        
+// La fonction permet de chercher un utilisateur par les champs autorisé
+module.exports.findOneUser = function(req, res){
+    LoggerHttp(req, res)
+    req.log.info("Recherche d'un utilisateur par un champ autorisé")
+    let fields = req.query.fields
+    if (fields && !Array.isArray(fields))
+        fields = [fields]
+    UserService.findOneUser(fields, req.query.value, null, function(err, value) {        
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)
@@ -129,6 +124,28 @@ module.exports.findManyUsersById = function(req, res) {
             res.send(err)
         }
         else if (err && err.type_error == "no-valid") {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else if (err && err.type_error == "error-mongo") {
+            res.statusCode = 500
+            res.send(err)
+        }
+        else {
+            res.statusCode = 200
+            res.send(value)
+        }
+    })
+}
+
+// La fonction permet de chercher plusieurs utilisateurs
+module.exports.findManyUsers = function(req, res) {
+    req.log.info("Recherche de plusieurs utilisateurs")
+    let page = req.query.page
+    let pageSize = req.query.pageSize
+    let searchValue = req.query.q
+    UserService.findManyUsers(searchValue, pageSize, page,  null, function(err, value) {        
+        if (err && err.type_error == "no-valid") {
             res.statusCode = 405
             res.send(err)
         }
@@ -193,12 +210,12 @@ module.exports.deleteManyUsers = function(req, res) {
     })
 }
 
-
 // La fonction permet de modifier un utilisateur
 module.exports.updateOneUser = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Modification d'un utilisateur")
     UserService.updateOneUser(req.params.id, req.body, null, function(err, value) {
+        //
         if (err && err.type_error == "no-found") {
             res.statusCode = 404
             res.send(err)

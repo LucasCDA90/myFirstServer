@@ -13,24 +13,25 @@ var ArticleSchema = mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
+        required: true
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        min: [1]
     },
     quantity: {
-        type: Number
+        type: Number,
+        required: true,
+        min: [1]
     },
     created_at: {
         type: Date,
-        required: true
+        default: new Date()
     },
     updated_at: {
         type: Date,
-        required: true
-    }
-    
+    },
 })
 
 module.exports = ArticleSchema
