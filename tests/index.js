@@ -19,7 +19,7 @@ describe("ArticleController", () => {
 })
 
 describe("API - Mongo", () => {
-    it("vider les dbs. -S", () => {
+    it("Vider les dbs. -S", () => {
       if (process.env.npm_lifecycle_event == 'test') {
         mongoose.connection.db.dropDatabase()
       }

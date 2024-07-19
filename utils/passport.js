@@ -7,13 +7,11 @@ const passportJWT = require('passport-jwt')
 const JWTStrategy = passportJWT.Strategy
 const ExtractJWT = passportJWT.ExtractJwt
 
-passport.serializeUser(function(user, done)  {  done(null, user) })
-passport.deserializeUser(function(user, done) { done(null, user) })
+passport.serializeUser((user, done) => done(null, user))
+passport.deserializeUser((user, done) => done(null, user))
 
-passport.use('login', new LocalStrategy({passReqToCallback: true,
-}, function(req, username, password, done){
+passport.use('login', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done){
     // création du systeme de login avec comparaison des mot de passe
-  //  console.log(username, password)
     UserService.loginUser(username, password, null, done)
 }))
 
@@ -30,6 +28,6 @@ passport.use(new JWTStrategy({
             done(null, value)
         }
     })
-})) 
+}))
 
 module.exports = passport

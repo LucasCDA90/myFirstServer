@@ -3,7 +3,7 @@ const _ = require('lodash')
 const async = require('async')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const TokenUtils = require('./../utils/token')
 const SALT_WORK_FACTOR = 10
 
@@ -12,12 +12,10 @@ var User = mongoose.model('User', UserSchema)
 User.createIndexes()
 
 module.exports.loginUser = async function (username, password, options, callback) {
-
-     module.exports.findOneUser(['username', 'email'], username, null, async (err, value) => {
+    module.exports.findOneUser(['username', 'email'], username, null, async (err, value) => {
       if (err)
         callback(err)
       else {
-        
         if (bcrypt.compareSync(password, value.password)) {
           var token = TokenUtils.createToken({ _id: value._id }, null)
           callback(null, { ...value, token: token })
@@ -26,7 +24,7 @@ module.exports.loginUser = async function (username, password, options, callback
           callback({ msg: "La comparaison des mots de passe sont fausses", type_error: "no_comparaison" })
         }
       }
-    })  
+    })
 }
 
 module.exports.addOneUser = async function (user, options, callback) {
